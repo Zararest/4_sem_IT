@@ -4,13 +4,13 @@ CPPFLAGS = --coverage
 
 DIR = ../
 SRC = $(DIR)main.c $(DIR)HashTable.c
-OBJ = main.o HashTable.o
+OBJ = HashTable.o main.o
 
 INFONAME = HashCover
 INFODIR = ../report
 
 all: $(OBJ)
-	$(CC) $(CPPFLAGS) $(SRC) -o main
+	$(CC) $(CPPFLAGS) $(OBJ) -o main
 
 $(OBJ): $(SRC)
 	$(CC) -c $(SRC)
@@ -26,4 +26,4 @@ show:
 
 .PHONY: clean
 clean:
-	rm -rf *.o main
+	rm -rf *.o *.gcda *.gcno *.info main 
