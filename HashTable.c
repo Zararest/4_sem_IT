@@ -41,13 +41,13 @@ int check_table(HashTable* table){
         return 0;
     }
 
-    if (table->size <= 0){
+    if (table->size < 0){
 
-        fprintf(stderr, "Error: check_table: table->size: table data corrupted\n");
+        fprintf(stderr, "Error: check_table: table->size: table data corrupted {%i}\n", table->size);
         return 0;
     }
 
-    if (table->loadFactor <= 0 || table->loadFactor > 1){
+    if (table->loadFactor < 0 || table->loadFactor > 1){
 
         fprintf(stderr, "Error: check_table: table->loadFactor: table data corrupted\n");
         return 0;
@@ -128,9 +128,9 @@ void rehash(HashTable* table){
     }
 
     TableCell* oldContent = table->content;
-
+    
     table->content = newContent;
-
+    
     for (int i = 0; i < table->capacity; i++){
 
         if (oldContent[i].valid == 1){
@@ -170,7 +170,7 @@ void freeHashTable(HashTable* table){
 }
 
 Key addElem(HashTable* table, const char* element){
-
+    
     if (check_table(table) == 0){
 
         return -1;
@@ -181,13 +181,13 @@ Key addElem(HashTable* table, const char* element){
         fprintf(stderr, "Warning: addElem: element: NULL\n");
         return -1;
     }
-
+    
     rehash(table);
-
+    
     Key key = Hash(element);
     Key curPos = key % table->capacity;
-    int elems_len = strlen(element) + 1;
-
+    int elems_len = strlen(element);
+    
     while (table->content[curPos].valid == 1){
 
         curPos = (curPos + 1) % table->capacity;
@@ -198,7 +198,7 @@ Key addElem(HashTable* table, const char* element){
             return -1;
         }
     }
-
+    
     table->content[curPos].element = (char*) my_calloc(elems_len, sizeof(char));
 
     if (table->content[curPos].element == NULL){
@@ -206,8 +206,8 @@ Key addElem(HashTable* table, const char* element){
         fprintf(stderr, "Error: add_elem: table[elem]: bad_alloc\n");
         return -1;
     }
-
-    if (memcpy(table->content[curPos].element, element, elems_len) != NULL){
+    
+    if (memcpy(table->content[curPos].element, element, elems_len) == NULL){
 
         fprintf(stderr, "Error: addElem: memcpy: line was not copied\n");
         return -1;
@@ -228,7 +228,7 @@ char* getElem(HashTable* table, Key key){
 
         return NULL;
     }
-
+    
     Key curPos = key % table->capacity;
     TableCell* curCell = table->content + curPos;
 

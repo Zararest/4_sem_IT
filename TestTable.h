@@ -21,9 +21,9 @@ int test_createTable();
 int test_rehash();
 
 int test_addElem();
-int test_get_elem();
+int test_getElem();
 int test_removeElem();
 
-int tets_Hash();
+int tets_negatives();
 #endif
 

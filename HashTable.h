@@ -1,10 +1,12 @@
 #ifndef HASHTABLE_ 
 #define HASHTABLE_
 
-#define MIN_CAPACITY 64
+#include <stddef.h>
+
+#define MIN_CAPACITY 8
 #define REHASH_FACTOR 2                                 
 
-typedef int Key;
+typedef unsigned Key;
 typedef int Bool;
 
 typedef struct _TableCell TableCell;
