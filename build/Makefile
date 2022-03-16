@@ -35,6 +35,10 @@ TestCoverage:
 	make test
 	make show
 
+.PHONY: TestValgrind
+TestValgrind:
+	valgrind ./test
+
 .PHONY: clean
 clean:
 	rm -rf *.o *.gcda *.gcno *.info main test ../report

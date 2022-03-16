@@ -145,6 +145,7 @@ int test_addElem(){
     }
 
     num_of_errors += addElem(table, line) != -1;
+    free(table->content);
     free(table);
 
     HashTable* table_2 = createHashTable(10);
@@ -219,12 +220,12 @@ int test_getElem(){
     num_of_errors += getElem(table_2, 1) != NULL;
     num_of_errors += getElem(NULL, 0) != NULL;
 
+    free(table_2->content);
     free(table_2);
     freeHashTable(table_1);
 
     return num_of_errors;
 }
-
 
 int test_removeElem(){
 
@@ -266,6 +267,10 @@ int test_removeElem(){
     removeElem(NULL, 0);
     removeElem(table_1, NULL);
 
+    free(table_2->content);
+    free(table_2);
+    freeHashTable(table_1);
+
     return num_of_errors;
 }
 
@@ -284,7 +289,10 @@ int tets_negatives(){
 
     table->size = -1;
     num_of_errors += addElem(table, "a") != -1;
-
+    
+    free(table->content);
+    free(table);
+    
     throw_null = 1;
 
     table_1 = createHashTable(10);
@@ -294,8 +302,6 @@ int tets_negatives(){
 
     freeHashTable(NULL);
 
-    free(table);
-
     HashTable* table_2 = createHashTable(10);
     void* old_ptr = table_2->content;
 
@@ -303,6 +309,8 @@ int tets_negatives(){
     num_of_errors += old_ptr != table_2->content;
 
     throw_null = 0;
+
+    freeHashTable(table_2);
 
     return num_of_errors;
 }

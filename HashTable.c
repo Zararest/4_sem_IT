@@ -128,23 +128,21 @@ void rehash(HashTable* table){
     }
 
     TableCell* oldContent = table->content;
-    
     table->content = newContent;
+
+    int old_capacity = table->capacity;
+    table->capacity = table->capacity * REHASH_FACTOR;
+    table->size = 0;
+    table->loadFactor = 0;
     
-    for (int i = 0; i < table->capacity; i++){
+    for (int i = 0; i < old_capacity; i++){
 
         if (oldContent[i].valid == 1){
 
-            Key newPos = oldContent[i].key % (table->capacity * REHASH_FACTOR);
-
-            newContent[newPos].element = oldContent[i].element;
-            newContent[newPos].key = oldContent[i].key;
-            newContent[newPos].valid = 1;
+            addElem(table, oldContent[i].element);
+            free( oldContent[i].element);
         }
     }
-
-    table->capacity = table->capacity * REHASH_FACTOR;
-    table->loadFactor = table->size / table->capacity;
 
     free(oldContent);
 }
@@ -210,6 +208,7 @@ Key addElem(HashTable* table, const char* element){
     if (memcpy(table->content[curPos].element, element, elems_len) == NULL){
 
         fprintf(stderr, "Error: addElem: memcpy: line was not copied\n");
+        free(table->content[curPos].element);
         return -1;
     }   
 
