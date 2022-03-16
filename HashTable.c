@@ -184,7 +184,7 @@ Key addElem(HashTable* table, const char* element){
     
     Key key = Hash(element);
     Key curPos = key % table->capacity;
-    int elems_len = strlen(element);
+    int elems_len = strlen(element) + 1;
     
     while (table->content[curPos].valid == 1){
 
