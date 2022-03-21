@@ -2,28 +2,30 @@
 #define TEST_HASHTABLE
 #include "HashTable.h"
 
-struct _TableCell{
+#define MAX_KEY_SIZE 15
 
-    char* element;
+struct TableCell_{
+
+    void* element;
+    int elementSize;
     Key key;
-    Bool valid;
+    int valid;
 };
 
-struct _HashTable{
+struct HashTable_{
 
     TableCell* content;
     int size;
     int capacity;
+    int deletedNum;
     float loadFactor;
+    float dirtyFactor;
 };
 
-int test_createTable();
-int test_rehash();
+void rehash_(HashTable* table, int rehashFactor);
+void insertCell_(HashTable* table, TableCell* cell);
 
-int test_addElem();
-int test_getElem();
-int test_removeElem();
-
+int test_table(const char* fileName);
 int tets_negatives();
 #endif
 

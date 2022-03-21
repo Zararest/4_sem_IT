@@ -37,6 +37,7 @@ TestCoverage:
 
 .PHONY: TestValgrind
 TestValgrind:
+	make TestTable
 	valgrind ./test
 
 .PHONY: clean
