@@ -1,4 +1,7 @@
-#define DELTA_X 0.01
-#define RANGE   10
+#include <math.h>
+
+#define DELTA_X 0.0001
+#define RANGE 10000
+#define FROM  1
 
 double definite_integral(double from, double to);

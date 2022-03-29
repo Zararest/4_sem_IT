@@ -2,7 +2,7 @@
 
 double func(double x){
 
-    return x + (x * x) / 2 + (x * x * x) / 3 + 1 / x + 1 / (x * x);
+    return pow(sin(x), 2) + pow(cos(x) * cos(x), 3.7);
 }
 
 double definite_integral(double from, double to){
