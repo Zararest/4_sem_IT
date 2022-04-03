@@ -184,28 +184,15 @@ void insertCell_(HashTable* table, TableCell* cell){
         return;
     }
 
-    unsigned hash = Hash(cell->key);
-    unsigned curPos = hash % table->capacity;
-    
-    while (table->content[curPos].valid == 1){
+    Key key = cell->key;
+    unsigned initialPos = Hash(key) % table->capacity;
+    unsigned shift = 0;
+    TableCell* curCell = table->content + initialPos;
 
-        if (cmpKeys(table->content + curPos, cell->key) == 1){
+    FIND_ELEM(return);
 
-            fprintf(stderr, "Error: insertCell: same keys\n");
-            return;
-        }
-
-        curPos = (curPos + 1) % table->capacity;
-
-        if (curPos == hash % table->capacity){
-            
-            fprintf(stderr, "Error: insertCell: table corrupted\n");
-            return;
-        }
-    }
-
-    table->content[curPos] = *cell;
-    assert(table->content[curPos].valid == 1);
+    *curCell = *cell;
+    assert(curCell->valid == 1);
     table->size++;
     CALC_FACTORS;
 }
