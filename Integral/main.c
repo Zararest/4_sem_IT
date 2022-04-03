@@ -8,8 +8,9 @@
 
 #include "Integral.h"
 
-#define PAGE_SIZE 4096
-#define NUM_OF_LOG_CPU 16
+#define PAGE_SIZE 4076
+#define NUM_OF_LOG_CPU 12
+#define MAGIC
 
 #define CHECK_ERROR(str)    do{             \
                                 perror(str);\
@@ -21,7 +22,7 @@ struct thread_data{
     double from;
     double to;
     int thread_num;
-    double* result;
+    double result[PAGE_SIZE / sizeof(double)];
 };
 
 void* thread_body(void* args){
@@ -33,12 +34,26 @@ void* thread_body(void* args){
     
     pthread_setaffinity_np(pthread_self(), sizeof(cpuset), &cpuset);
     
-    //sched_yield();
+    sched_yield();
     
     *data->result = definite_integral(data->from, data->to);
 
-    //printf("thread num %i result: %lf [%lf, %lf]\n", data->thread_num, *data->result, data->from, data->to);
     return NULL;
+}
+
+void magic(int num_of_threads, pthread_t* thr_info){
+
+    struct thread_data* data = (struct thread_data*) calloc(num_of_threads, sizeof(struct thread_data));
+    if (data == NULL) CHECK_ERROR("alloc data:");
+
+    for (int i = 0; i < num_of_threads; i++){
+
+        data[i].from = i * (RANGE / num_of_threads);
+        data[i].to = data[i].from + (RANGE / num_of_threads);
+        data[i].thread_num = i;
+
+        if (pthread_create(thr_info + i, NULL, thread_body, data + i) != 0) CHECK_ERROR("thread create:");
+    }
 }
 
 int main(int argc, char** argv){
@@ -57,21 +72,21 @@ int main(int argc, char** argv){
         return 0;
     }
 
-    double* results = (double*) calloc(PAGE_SIZE * num_of_threads, 1);
-    if (results == NULL) CHECK_ERROR("alloc results:");
-
-    pthread_t* thr_info = (pthread_t*) calloc(num_of_threads, sizeof(int));
+    pthread_t* thr_info = (pthread_t*) calloc((num_of_threads > NUM_OF_LOG_CPU) ? num_of_threads : NUM_OF_LOG_CPU, sizeof(pthread_t));
     if (thr_info == NULL) CHECK_ERROR("alloc threads:");
 
     struct thread_data* data = (struct thread_data*) calloc(num_of_threads, sizeof(struct thread_data));
     if (data == NULL) CHECK_ERROR("alloc data:");
 
+    #ifdef MAGIC
+    magic(num_of_threads, thr_info);
+    #endif
+
     for (int i = 0; i < num_of_threads; i++){
 
         data[i].from = i * (RANGE / num_of_threads);
         data[i].to = data[i].from + (RANGE / num_of_threads);
-        data[i].thread_num = (2 * i) % NUM_OF_LOG_CPU;
-        data[i].result = results + i * (PAGE_SIZE / sizeof(double));
+        data[i].thread_num = i;
 
         if (pthread_create(thr_info + i, NULL, thread_body, data + i) != 0) CHECK_ERROR("thread create:");
     }
@@ -80,10 +95,11 @@ int main(int argc, char** argv){
 
     for (int i = 0; i < num_of_threads; i++){
 
-        pthread_join(thr_info[i], NULL);
-        integral += *(results + i * (PAGE_SIZE / sizeof(double)));
+        if (pthread_join(thr_info[i], NULL) != 0) CHECK_ERROR("thread join:");
+        
+        integral += data[i].result[0];
     }
 
-    printf("Integral = %.2lf\n", integral);
-    //printf("Time = %.4f delta = %lf\n", ((double)(end - start)) / CLOCKS_PER_SEC, DELTA_X);
+    free(thr_info);
+    free(data);
 }
