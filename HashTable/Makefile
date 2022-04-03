@@ -1,24 +1,17 @@
 CC = gcc
-CFLAGS = -g -MD
-CPPFLAGS = --coverage
+CPPFLAGS = -DTEST
 
-SRC = main.c HashTable.c TestTable.c test.c
-OBJ = main.o HashTable.o TestTable.o
-SRC_TEST = test.c HashTable.c TestTable.c 
+OBJ = test.o HashTable.o TestTable.o
+SRC = test.c HashTable.c TestTable.c 
 
 INFONAME = HashCover
 INFODIR = ./report
 
-all: $(SRC_TEST)
-	$(CC) $(CPPFLAGS) $(SRC_TEST) -MMD -MP -DTEST -o  test 
-
-#сделать раздельную компиляцию 
+all: $(OBJ)
+	$(CC) $(OBJ) -lgcov  -o  test 
 
 $(OBJ): $(SRC)
-	$(CC) -MMD -MP -c $(SRC)
-
-MainTable: $(OBJ)
-	$(CC)  $(OBJ) -o main
+	$(CC) $(CPPFLAGS) --coverage -c $(SRC)
 
 .PHONY: test
 test:
