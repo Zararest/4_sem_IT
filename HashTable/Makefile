@@ -1,17 +1,23 @@
 CC = gcc
-CPPFLAGS = -DTEST
+CPPFLAGS = -DTEST -MMD -MP
 
-OBJ = test.o HashTable.o TestTable.o
-SRC = test.c HashTable.c TestTable.c 
+OBJ = test.o TestTable.o
+SRC = test.c TestTable.c 
+
+OBJ_COVERAGE = HashTable.o
+SRC_COVERAGE = HashTable.c
 
 INFONAME = HashCover
 INFODIR = ./report
 
-all: $(OBJ)
-	$(CC) $(OBJ) -lgcov  -o  test 
+all: $(OBJ) $(OBJ_COVERAGE)
+	$(CC) $(OBJ) $(OBJ_COVERAGE) -lgcov -o  test 
+
+$(OBJ_COVERAGE): $(SRC_COVERAGE)
+	$(CC) $(CPPFLAGS) --coverage -c $(SRC_COVERAGE)
 
 $(OBJ): $(SRC)
-	$(CC) $(CPPFLAGS) --coverage -c $(SRC)
+	$(CC) $(CPPFLAGS) -c $(SRC)
 
 .PHONY: test
 test:
