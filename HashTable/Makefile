@@ -10,7 +10,9 @@ INFONAME = HashCover
 INFODIR = ./report
 
 all: $(SRC_TEST)
-	$(CC) $(CPPFLAGS) $(SRC_TEST) -MMD -MP -DTEST -o  test
+	$(CC) $(CPPFLAGS) $(SRC_TEST) -MMD -MP -DTEST -o  test 
+
+#сделать раздельную компиляцию 
 
 $(OBJ): $(SRC)
 	$(CC) -MMD -MP -c $(SRC)

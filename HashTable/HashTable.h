@@ -19,7 +19,7 @@ void freeHashTable(HashTable* table);
 
 int addElem(HashTable* table, Key key, void* element, int elementLen);
 void* getElem(HashTable* table, Key key);
-void removeElem(HashTable* table, const char* element);
+void removeElem(HashTable* table, Key key);
 
 unsigned Hash(const char* element);
 

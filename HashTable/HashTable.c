@@ -24,6 +24,33 @@ struct HashTable_{
     float dirtyFactor;
 };
 
+#define FIND_ELEM(errorHandle)  do{                                                                                     \
+                                    while (curCell->valid == -1 || (curCell->valid == 1 && cmpKeys(curCell, key) == 0)){\
+                                                                                                                        \
+                                        curCell = table->content + (initialPos + shift) % table->capacity;              \
+                                        shift++;                                                                        \
+                                                                                                                        \
+                                        if (shift == table->capacity){                                                  \
+                                                                                                                        \
+                                            fprintf(stderr, "Error: cyclic search: table corrupted\n");                 \
+                                            errorHandle;                                                                \
+                                        }                                                                               \
+                                    }                                                                                   \
+                                } while (0)
+
+#define INIT_TABLE(capacitySize)do{                                 \
+                                    table->capacity = capacitySize; \
+                                    table->size = 0;                \
+                                    table->deletedNum = 0;          \
+                                    table->loadFactor = 0;          \
+                                    table->dirtyFactor = 0;         \
+                                } while(0)
+
+#define CALC_FACTORS    do{                                                                     \
+                            table->loadFactor = ((float)table->size) / ((float)table->capacity);\
+                            table->dirtyFactor = table->deletedNum / table->capacity;           \
+                        } while(0)
+
 #ifndef  TEST
 void* my_calloc(size_t nmem, size_t size){
 
@@ -123,9 +150,9 @@ int cmpKeys(TableCell* curCell, const char* key){
 
 HashTable* createHashTable(int capacity){
 
-    HashTable* ht = (HashTable*) my_calloc(1, sizeof(HashTable));
+    HashTable* table = (HashTable*) my_calloc(1, sizeof(HashTable));
 
-    if (ht == NULL){
+    if (table == NULL){
 
         fprintf(stderr, "Error: createHashTable(): ht: bad_alloc\n");
         return NULL;
@@ -136,22 +163,18 @@ HashTable* createHashTable(int capacity){
         capacity = MIN_CAPACITY;
     }
 
-    ht->content = (TableCell*) my_calloc(capacity, sizeof(TableCell));
+    table->content = (TableCell*) my_calloc(capacity, sizeof(TableCell));
 
-    if (ht->content == NULL){
+    if (table->content == NULL){
 
         fprintf(stderr, "Error: createHashTable(): ht->content: bad_alloc\n");
-        free(ht);
+        free(table);
         return NULL;
     }
 
-    ht->size = 0;
-    ht->deletedNum = 0;
-    ht->capacity = capacity;
-    ht->loadFactor = 0;
-    ht->dirtyFactor = 0;
+    INIT_TABLE(capacity);
 
-    return ht;
+    return table;
 }
 
 void insertCell_(HashTable* table, TableCell* cell){
@@ -184,9 +207,7 @@ void insertCell_(HashTable* table, TableCell* cell){
     table->content[curPos] = *cell;
     assert(table->content[curPos].valid == 1);
     table->size++;
-
-    table->loadFactor = ((float)table->size) / ((float)table->capacity);
-    assert(table->loadFactor < 0.9);
+    CALC_FACTORS;
 }
 
 void rehash_(HashTable* table, int rehashFactor){ 
@@ -208,11 +229,8 @@ void rehash_(HashTable* table, int rehashFactor){
     table->content = newContent;
 
     int oldCapacity = table->capacity;
-    table->capacity = table->capacity * rehashFactor;
-    table->size = 0;
-    table->deletedNum = 0;
-    table->loadFactor = 0;
-    table->dirtyFactor = 0;
+
+    INIT_TABLE(table->capacity * rehashFactor);
     
     for (int i = 0; i < oldCapacity; i++){
 
@@ -279,6 +297,56 @@ Key copyKey_(Key key){
     return ret;
 }
 
+int addNewElem_(HashTable* table, Key key, void* element, int elementLen){
+
+    unsigned initialPos = Hash(key) % table->capacity;
+    unsigned shift = 0;
+    TableCell* curCell = table->content + initialPos;
+
+    while (curCell->valid == 1){
+
+        curCell = table->content + (initialPos + shift) % table->capacity;
+        shift++;
+    }
+
+    curCell->element = (char*) my_calloc(elementLen, sizeof(char));
+
+    if (curCell->element == NULL){
+
+        fprintf(stderr, "Error: add_elem: table[elem]: bad_alloc\n");
+        return -1;
+    }
+    
+    if (memcpy(curCell->element, element, elementLen) == NULL){
+
+        fprintf(stderr, "Error: addElem: memcpy: line was not copied\n");
+        free(curCell->element);
+        return -1;
+    }   
+
+    curCell->key = copyKey_(key);                                            
+    
+    if (curCell->key == NULL){
+
+        fprintf(stderr, "Error: addElem: memcpy: key was not copied\n");
+        free(curCell->element);
+        return -1;
+    } 
+
+    if (curCell->valid == -1){
+
+        table->deletedNum--;
+    }
+
+    curCell->elementSize = elementLen;
+    curCell->valid = 1; 
+
+    table->size++;
+    CALC_FACTORS;
+
+    return 1;
+}
+
 int addElem(HashTable* table, Key key, void* element, int elementLen){
     
     if (check_table(table) == 0){
@@ -295,63 +363,18 @@ int addElem(HashTable* table, Key key, void* element, int elementLen){
     rehash(table);
     assert(table->loadFactor < 0.9);
 
-    unsigned hash = Hash(element);
-    unsigned curPos = hash % table->capacity;
+    unsigned initialPos = Hash(key) % table->capacity;
+    unsigned shift = 0;
+    TableCell* curCell = table->content + initialPos;
     
-    while (table->content[curPos].valid != 0){
+    FIND_ELEM(return -1);
 
-        if (table->content[curPos].valid == 1 && cmpKeys(table->content + curPos, key) == 1){
+    if (curCell->valid == 1 && cmpKeys(curCell, key) == 1){
 
-            return 0;
-        }
-
-        curPos = (curPos + 1) % table->capacity;
-
-        if (curPos == hash % table->capacity){
-            
-            fprintf(stderr, "Error: addElem: table corrupted\n");
-            return -1;
-        }
+        return 0;
     }
     
-    table->content[curPos].element = (char*) my_calloc(elementLen, sizeof(char));
-
-    if (table->content[curPos].element == NULL){
-
-        fprintf(stderr, "Error: add_elem: table[elem]: bad_alloc\n");
-        return -1;
-    }
-    
-    if (memcpy(table->content[curPos].element, element, elementLen) == NULL){
-
-        fprintf(stderr, "Error: addElem: memcpy: line was not copied\n");
-        free(table->content[curPos].element);
-        return -1;
-    }   
-
-    table->content[curPos].key = copyKey_(key);                                            
-    
-    if (table->content[curPos].key == NULL){
-
-        fprintf(stderr, "Error: addElem: memcpy: key was not copied\n");
-        free(table->content[curPos].element);
-        return -1;
-    } 
-
-    if (table->content[curPos].valid == -1){
-
-        table->deletedNum--;
-    }
-
-    table->content[curPos].elementSize = elementLen;
-    table->content[curPos].valid = 1; 
-
-    table->size++;
-    table->loadFactor = ((float)table->size) / ((float)table->capacity);
-    assert(table->loadFactor < 0.9);
-    table->dirtyFactor = table->deletedNum / table->capacity;
-
-    return 1;
+    return addNewElem_(table, key, element, elementLen);
 }
 
 void* copyElem_(TableCell* cell){
@@ -373,21 +396,18 @@ void* getElem(HashTable* table, Key key){
 
         return NULL;
     }
-    
-    unsigned curPos = Hash(key) % table->capacity, initialPos = curPos;
-    TableCell* curCell = table->content + curPos;
 
-    while (curCell->valid == -1 || (curCell->valid == 1 && cmpKeys(curCell, key) == 0)){
+    if (key == NULL){
 
-        curPos = (curPos + 1) % table->capacity;
-        curCell = table->content + curPos;
-
-        if (curPos == initialPos){
-            
-            fprintf(stderr, "Error: getElem: table corrupted ");
-            return NULL;
-        }
+        fprintf(stderr, "Warning: getElem: element: NULL\n");
+        return NULL;
     }
+    
+    unsigned initialPos = Hash(key) % table->capacity;
+    unsigned shift = 0;
+    TableCell* curCell = table->content + initialPos;
+
+    FIND_ELEM(return NULL);
 
     if (curCell->valid == 1 && cmpKeys(curCell, key) == 1){
 
@@ -398,51 +418,37 @@ void* getElem(HashTable* table, Key key){
     }
 }
 
-void removeElem(HashTable* table, const char* element){
+void removeElem(HashTable* table, Key key){
 
     if (check_table(table) == 0){
 
         return;
     }
 
-    if (element == NULL){
+    if (key == NULL){
 
         fprintf(stderr, "Warning: removeElem: element: NULL\n");
         return;
     }
 
-    rehash(table);
+    unsigned initialPos = Hash(key) % table->capacity;
+    unsigned shift = 0;
+    TableCell* curCell = table->content + initialPos;
 
-    unsigned hash = Hash(element);
-    unsigned curPos = hash % table->capacity;
-    TableCell* curCell = table->content + curPos;
+    FIND_ELEM(return);
 
-    while (curCell->valid != 0){
+    if (curCell->valid == 1 && cmpKeys(curCell, key) == 1){
 
-        if (curCell->valid == 1 && cmpKeys(curCell, element) == 1){
+        curCell->valid = -1;
+        free(curCell->element);
+        free(curCell->key);
+        curCell->key = NULL;
+        curCell->element = NULL;
 
-            curCell->valid = -1;
-            free(curCell->element);
-            free(curCell->key);
-            curCell->key = NULL;
-            curCell->element = NULL;
+        table->size--;
+        table->deletedNum++;
+        CALC_FACTORS;
 
-            table->size--;
-            table->deletedNum++;
-            table->loadFactor = ((float)table->size) / ((float)table->capacity);
-            assert(table->loadFactor < 0.9);
-            table->dirtyFactor = table->deletedNum / table->capacity;
-
-            return;
-        }
-
-        curPos = (curPos + 1) % table->capacity;
-        curCell = table->content + curPos;
-
-        if (curPos == hash % table->capacity){
-            
-            fprintf(stderr, "Error: removeElem: table corrupted\n");
-            return;
-        }
+        rehash(table);
     }
 }

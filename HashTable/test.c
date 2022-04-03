@@ -3,6 +3,6 @@
 
 int main(){
 
-    printf("Num of errors testTable: %i\n", test_table("./bin/test_1"));
-    printf("Num of errors negatives: %i\n", tets_negatives());
+    printf("\nNum of errors testTable: %i\n", test_table("./bin/test_1"));
+    printf("\nNum of errors negatives: %i\n\n", tets_negatives());
 }

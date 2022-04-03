@@ -182,6 +182,7 @@ int tets_negatives(){
     removeElem(table_2, NULL);
 
     num_of_errors += addElem(table_2, NULL, NULL, 1) != -1;
+    num_of_errors += getElem(table_2, NULL) != NULL;
 
     table_2->dirtyFactor = 0.8;
     rehash(table_2);
