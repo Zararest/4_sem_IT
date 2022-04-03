@@ -9,7 +9,7 @@
 #include "Integral.h"
 
 #define PAGE_SIZE 4076
-#define NUM_OF_LOG_CPU 12
+#define NUM_OF_LOG_CPU 16
 #define MAGIC
 
 #define CHECK_ERROR(str)    do{             \
@@ -43,14 +43,16 @@ void* thread_body(void* args){
 
 void magic(int num_of_threads, pthread_t* thr_info){
 
-    struct thread_data* data = (struct thread_data*) calloc(num_of_threads, sizeof(struct thread_data));
+    if (num_of_threads > NUM_OF_LOG_CPU) return;
+
+    struct thread_data* data = (struct thread_data*) calloc(NUM_OF_LOG_CPU - num_of_threads, sizeof(struct thread_data));
     if (data == NULL) CHECK_ERROR("alloc data:");
 
-    for (int i = 0; i < num_of_threads; i++){
+    for (int i = 0; i < NUM_OF_LOG_CPU - num_of_threads; i++){
 
         data[i].from = i * (RANGE / num_of_threads);
-        data[i].to = data[i].from + (RANGE / num_of_threads);
-        data[i].thread_num = i;
+        data[i].to = data[i].from + (RANGE / num_of_threads) * 0.7;
+        data[i].thread_num = num_of_threads + i;
 
         if (pthread_create(thr_info + i, NULL, thread_body, data + i) != 0) CHECK_ERROR("thread create:");
     }
@@ -79,7 +81,7 @@ int main(int argc, char** argv){
     if (data == NULL) CHECK_ERROR("alloc data:");
 
     #ifdef MAGIC
-    magic(num_of_threads, thr_info);
+    magic(num_of_threads, thr_info + num_of_threads);
     #endif
 
     for (int i = 0; i < num_of_threads; i++){
@@ -93,11 +95,14 @@ int main(int argc, char** argv){
 
     double integral = 0;
 
-    for (int i = 0; i < num_of_threads; i++){
+    for (int i = 0; i < ((num_of_threads > NUM_OF_LOG_CPU) ? num_of_threads : NUM_OF_LOG_CPU); i++){
 
         if (pthread_join(thr_info[i], NULL) != 0) CHECK_ERROR("thread join:");
         
-        integral += data[i].result[0];
+        if (i < num_of_threads){
+
+            integral += data[i].result[0];
+        }
     }
 
     free(thr_info);

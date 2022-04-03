@@ -12,6 +12,6 @@ $(OBJ): $(SRC)
 
 .PHONY: clean
 clean:
-	rm -rf *.o *.d
+	rm -rf *.o *.d integral
 
 -include *.d
