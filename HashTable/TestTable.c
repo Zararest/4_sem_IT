@@ -71,10 +71,10 @@ int test_table(const char* fileName){
 
     assert(data != NULL);
 
-    int numOfComands = 0;
+    int numOfComands = 0, err;
     fscanf(data, "%i", &numOfComands);
 
-    HashTable* table = createHashTable(1);
+    HashTable* table = createHashTable(1, &err);
     char** keys = (char**) calloc(numOfComands, sizeof(char*));
     char* tableElem = NULL;
     int numOfErrors = 0;
@@ -92,7 +92,7 @@ int test_table(const char* fileName){
         if (curCommand[0] == 'a'){
 
             arrayRet = addToArray(keys, tmpKey, i + 1);
-            tableRet = addElem(table, tmpKey, tmpKey, keySize);
+            tableRet = addElem(table, tmpKey, tmpKey, keySize, &err);
 
             numOfErrors += arrayRet != tableRet;
         }
@@ -100,7 +100,7 @@ int test_table(const char* fileName){
         if (curCommand[0] == 'g'){
 
             arrayRet = findKey(keys, tmpKey, i + 1);
-            tableElem = (char*) getElem(table, tmpKey);
+            tableElem = (char*) getElem(table, tmpKey, &err);
             
             if (tableElem != NULL){
 
@@ -115,12 +115,12 @@ int test_table(const char* fileName){
         if (curCommand[0] == 'r'){
 
             removeKey(keys, tmpKey, i + 1);
-            removeElem(table, tmpKey);
+            removeElem(table, tmpKey, &err);
         }
     }
 
     freeArray(keys, numOfComands);
-    freeHashTable(table);
+    freeHashTable(table, &err);
     fclose(data);
 
     return numOfErrors;
@@ -130,87 +130,87 @@ int tets_negatives(){
 
     throw_null = 0;
 
-    int num_of_errors = 0;
+    int num_of_errors = 0, err;
 
     num_of_errors += Hash(NULL) != 0;
     
-    HashTable* table = createHashTable(10);
+    HashTable* table = createHashTable(10, &err);
     HashTable* table_1 = NULL;
 
     table->capacity = -1;
-    num_of_errors += addElem(table, "a", "a", 2) != -1;
+    num_of_errors += addElem(table, "a", "a", 2, &err) != -1;
     table->capacity = 10;
 
     table->loadFactor = 2;
-    num_of_errors += addElem(table, "a", "a", 2) != -1;
+    num_of_errors += addElem(table, "a", "a", 2, &err) != -1;
     table->loadFactor = 0;
 
     table->size = -1;
-    num_of_errors += addElem(table, "a", "a", 2) != -1;
+    num_of_errors += addElem(table, "a", "a", 2, &err) != -1;
     table->size = 0;
 
     table->deletedNum = -1;
-    num_of_errors += addElem(table, "a", "a", 2) != -1;
+    num_of_errors += addElem(table, "a", "a", 2, &err) != -1;
     table->deletedNum = 1;
 
     table->dirtyFactor = 2;
-    num_of_errors += addElem(table, "a", "a", 2) != -1;
-    num_of_errors += getElem(table, "a") != NULL;
-    removeElem(table, "a");
+    num_of_errors += addElem(table, "a", "a", 2, &err) != -1;
+    num_of_errors += getElem(table, "a", &err) != NULL;
+    removeElem(table, "a", &err);
     table->dirtyFactor = 0;
     free(table->content);
     free(table);
     
     throw_null = 1;
 
-    table_1 = createHashTable(10);
+    table_1 = createHashTable(10, &err);
     num_of_errors += table_1 != NULL;
     
     throw_null = 2;
 
-    table_1 = createHashTable(10);
+    table_1 = createHashTable(10, &err);
     num_of_errors += table_1 != NULL;
     
     throw_null = 0;
 
-    freeHashTable(NULL);
-    rehash_(NULL, -1);
-    rehash(NULL);
-    insertCell_(NULL, NULL);
+    freeHashTable(NULL, &err);
+    rehash_(NULL, -1, &err);
+    rehash(NULL, &err);
+    insertCell_(NULL, NULL, &err);
 
-    HashTable* table_2 = createHashTable(10);
-    removeElem(table_2, NULL);
+    HashTable* table_2 = createHashTable(10, &err);
+    removeElem(table_2, NULL, &err);
 
-    num_of_errors += addElem(table_2, NULL, NULL, 1) != -1;
-    num_of_errors += getElem(table_2, NULL) != NULL;
+    num_of_errors += addElem(table_2, NULL, NULL, 1, &err) != -1;
+    num_of_errors += getElem(table_2, NULL, &err) != NULL;
 
     table_2->dirtyFactor = 0.8;
-    rehash(table_2);
+    rehash(table_2, &err);
     void* old_ptr = table_2->content;
 
     throw_null = 1;
 
-    rehash(table_2);
+    rehash(table_2, &err);
     num_of_errors += old_ptr != table_2->content;
 
     throw_null = 2;
 
-    rehash(table_2);
+    rehash(table_2, &err);
 
     throw_null = 1;
 
-    rehash_(table_2, 1);
-    num_of_errors += addElem(table_2, "a", "a", 2) != -1;
+    rehash_(table_2, 1, &err);
+    num_of_errors += addElem(table_2, "a", "a", 2, &err) != -1;
 
     throw_null = 2;
     
-    num_of_errors += addElem(table_2, "b", "a", 2) != -1;
+    num_of_errors += addElem(table_2, "b", "a", 2, &err) != -1;
 
     throw_null = 0;
 
-    freeHashTable(table_2);
+    freeHashTable(table_2, &err);
 
-    HashTable* table_3 = createHashTable(10);
+    HashTable* table_3 = createHashTable(10, &err);
     char tmp[4] = {"abc"};
 
     for (int i = 0; i < 10; i++){
@@ -219,12 +219,27 @@ int tets_negatives(){
         table_3->content[i].valid = 1;
     }
 
-    num_of_errors += addElem(table_3, "aaa", "aaa", 3) != -1;
-    num_of_errors += getElem(table_3, "aaa") != NULL;
-    removeElem(table_3, "aaa");
+    num_of_errors += addElem(table_3, "aaa", "aaa", 3, &err) != -1;
+    num_of_errors += getElem(table_3, "aaa", &err) != NULL;
+    removeElem(table_3, "aaa", &err);
 
     free(table_3->content);
     free(table_3);
 
     return num_of_errors;
+}
+
+void errors_test(){
+
+    what(-1);
+    what(Ok);
+    what(BadAlloc);
+    what(MemcpyException);
+    what(CapacityCorrupted);
+    what(SizeCorrupted);
+    what(DeletedNumCorrupted);
+    what(LoadFactorCorrupted);
+    what(DirtyFactorCorrupted);
+    what(LoopedSearch);
+    what(WrongParam);
 }

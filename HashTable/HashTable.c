@@ -48,6 +48,17 @@ void* my_calloc(size_t nmem, size_t size){
 }
 #endif 
 
+int cmpKeys_(TableCell* curCell, const char* key){
+
+    if (strcmp(curCell->key, key) == 0){
+
+        return 1;
+    } else{
+
+        return 0;
+    }
+}
+
 void calcFactors_(HashTable* table){
 
     table->loadFactor = ((float)table->size) / ((float)table->capacity);
@@ -76,7 +87,7 @@ TableCell* findElem_(HashTable* table, Key key, int* err){
                                                                                         
         if (shift == table->capacity){                                                  
                        
-            err = LoopedSearch;
+            *err = LoopedSearch;
             return NULL;                                                          
         }                                                                               
     } 
@@ -135,37 +146,37 @@ int check_table_(HashTable* table, int* err){
 
     if (table == NULL){
 
-        err = WrongParam;
+        *err = WrongParam;
         return 0;
     }
 
     if (table->capacity <= 0){
 
-        err = CapacityCorrupted;
+        *err = CapacityCorrupted;
         return 0;
     }
 
     if (table->size < 0){
 
-        err = SizeCorrupted;
+        *err = SizeCorrupted;
         return 0;
     }
 
     if (table->deletedNum < 0){
 
-        err = DeletedNumCorrupted;
+        *err = DeletedNumCorrupted;
         return 0;
     }
 
     if (table->loadFactor < 0 || table->loadFactor > 1){
 
-        err = LoadFactorCorrupted;
+        *err = LoadFactorCorrupted;
         return 0;
     }
 
     if (table->dirtyFactor < 0 || table->dirtyFactor > 1){
 
-        err = DirtyFactorCorrupted;
+        *err = DirtyFactorCorrupted;
         return 0;
     }
 
@@ -192,24 +203,13 @@ unsigned Hash(const char* element){
     return ret_val;
 }
 
-int cmpKeys_(TableCell* curCell, const char* key){
-
-    if (strcmp(curCell->key, key) == 0){
-
-        return 1;
-    } else{
-
-        return 0;
-    }
-}
-
 HashTable* createHashTable(int capacity, int* err){
 
     HashTable* table = (HashTable*) my_calloc(1, sizeof(HashTable));
 
     if (table == NULL){
 
-        err = BadAlloc;
+        *err = BadAlloc;
         return NULL;
     }
     
@@ -222,7 +222,7 @@ HashTable* createHashTable(int capacity, int* err){
 
     if (table->content == NULL){
 
-        err = BadAlloc;
+        *err = BadAlloc;
         free(table);
         return NULL;
     }
@@ -233,6 +233,12 @@ HashTable* createHashTable(int capacity, int* err){
 }
 
 void insertCell_(HashTable* table, TableCell* cell, int* err){
+
+    if (table == NULL || cell == NULL){
+
+        *err = WrongParam;
+        return;
+    }
 
     Key key = cell->key;
     TableCell* curCell = findElem_(table, key, err);
@@ -249,11 +255,17 @@ void insertCell_(HashTable* table, TableCell* cell, int* err){
 
 void rehash_(HashTable* table, int rehashFactor, int* err){ 
 
+    if (table ==  NULL || rehashFactor < 1){
+
+        *err = WrongParam;
+        return; 
+    }
+
     TableCell* newContent = (TableCell*) my_calloc(table->capacity * rehashFactor, sizeof(TableCell));
 
     if (newContent == NULL){
 
-        err = BadAlloc;
+        *err = BadAlloc;
         return;
     }
 
@@ -344,13 +356,13 @@ int addNewElem_(HashTable* table, Key key, void* element, int elementLen, int* e
 
     if (curCell->element == NULL){
 
-        err = BadAlloc;
+        *err = BadAlloc;
         return -1;
     }
     
     if (memcpy(curCell->element, element, elementLen) == NULL){
 
-        err = MemcpyException;
+        *err = MemcpyException;
         free(curCell->element);
         return -1;
     }   
@@ -359,7 +371,7 @@ int addNewElem_(HashTable* table, Key key, void* element, int elementLen, int* e
     
     if (curCell->key == NULL){
 
-        err = MemcpyException;
+        *err = MemcpyException;
         free(curCell->element);
         return -1;
     } 
@@ -387,14 +399,14 @@ int addElem(HashTable* table, Key key, void* element, int elementLen, int* err){
 
     if (key == NULL){
         
-        err = WrongParam;
+        *err = WrongParam;
         return -1;
     }
 
-    *err = 0;
+    *err = Ok;
     rehash(table, err);
 
-    if (err != Ok){
+    if (*err != Ok){
 
         return -1;
     }
@@ -436,7 +448,7 @@ void* getElem(HashTable* table, Key key, int* err){
 
     if (key == NULL){
 
-        err = WrongParam;
+        *err = WrongParam;
         return NULL;
     }
     
@@ -465,11 +477,16 @@ void removeElem(HashTable* table, Key key, int* err){
 
     if (key == NULL){
 
-        err = WrongParam;
+        *err = WrongParam;
         return;
     }
 
     TableCell* curCell = findElem_(table, key, err);
+
+    if (curCell == NULL){
+        
+        return;
+    }
 
     if (curCell->valid == 1){
 

@@ -22,10 +22,11 @@ struct HashTable_{
     float dirtyFactor;
 };
 
-void rehash_(HashTable* table, int rehashFactor);
-void insertCell_(HashTable* table, TableCell* cell);
+void rehash_(HashTable* table, int rehashFactor, int* err);
+void insertCell_(HashTable* table, TableCell* cell, int* err);
 
 int test_table(const char* fileName);
 int tets_negatives();
+void errors_test();
 #endif
 
