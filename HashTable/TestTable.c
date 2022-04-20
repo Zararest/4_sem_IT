@@ -157,6 +157,7 @@ int tets_negatives(){
     num_of_errors += addElem(table, "a", "a", 2, &err) != -1;
     num_of_errors += getElem(table, "a", &err) != NULL;
     removeElem(table, "a", &err);
+    num_of_errors += err != DirtyFactorCorrupted;
     table->dirtyFactor = 0;
     free(table->content);
     free(table);
@@ -174,9 +175,9 @@ int tets_negatives(){
     throw_null = 0;
 
     freeHashTable(NULL, &err);
-    rehash_(NULL, -1, &err);
+    num_of_errors += err != WrongParam;
     rehash(NULL, &err);
-    insertCell_(NULL, NULL, &err);
+    num_of_errors += err != WrongParam;
 
     HashTable* table_2 = createHashTable(10, &err);
     removeElem(table_2, NULL, &err);

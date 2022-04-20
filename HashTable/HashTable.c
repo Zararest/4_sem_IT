@@ -234,12 +234,6 @@ HashTable* createHashTable(int capacity, int* err){
 
 void insertCell_(HashTable* table, TableCell* cell, int* err){
 
-    if (table == NULL || cell == NULL){
-
-        *err = WrongParam;
-        return;
-    }
-
     Key key = cell->key;
     TableCell* curCell = findElem_(table, key, err);
 
@@ -254,12 +248,6 @@ void insertCell_(HashTable* table, TableCell* cell, int* err){
 }
 
 void rehash_(HashTable* table, int rehashFactor, int* err){ 
-
-    if (table ==  NULL || rehashFactor < 1){
-
-        *err = WrongParam;
-        return; 
-    }
 
     TableCell* newContent = (TableCell*) my_calloc(table->capacity * rehashFactor, sizeof(TableCell));
 
