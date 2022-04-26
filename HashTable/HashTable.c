@@ -232,7 +232,7 @@ HashTable* createHashTable(int capacity, int* err){
     return table;
 }
 
-void insertCell_(HashTable* table, TableCell* cell, int* err){
+void insertCell_(HashTable* table, TableCell* cell, int* err){ //сделать все подчеркнутые статиком 
 
     Key key = cell->key;
     TableCell* curCell = findElem_(table, key, err);
@@ -403,7 +403,7 @@ int addElem(HashTable* table, Key key, void* element, int elementLen, int* err){
     
     if (curCell == NULL){
 
-        return - 1;
+        return -1;
     }
 
     if (curCell->valid == 1){
