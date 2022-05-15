@@ -1,18 +1,20 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <time.h>
+#include <stdio.h>
 
 #define BACK_LOG 50
 #define PORT_NUM 4111
 
-typedef struct Task_{
+typedef struct Task{
 
     int num_of_threads;
     double from;
     double to;
 } Task;
 
-typedef struct Result_{
+typedef struct Result{
 
     double value;
     clock_t time;

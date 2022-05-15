@@ -3,12 +3,16 @@
 
 #include <time.h>
 
+#define CHECK_ERROR(str)    do{             \
+                                perror(str);\
+                                exit(0);    \
+                            } while (0)  
+
 typedef struct Computers{
 
     int num_of_computers;
     int* sockets;
 } Computers;
-
 
 Computers* init_computers(int num_of_computers){ //ok
 
@@ -84,17 +88,31 @@ int connect_computers(Computers* computers){ //ok
     return num_of_threads;
 }
 
-void calc_new_task(int num_of_computers, int cur_computer, int num_of_threads, Task* task){
+double calc_new_task(int num_of_computers, int cur_computer, int num_of_threads, double start_point, Task* task){
 
+    double range_per_thread = RANGE / num_of_threads;
+    int cur_num_of_threads = num_of_threads / num_of_computers;
+
+    if (cur_computer < (num_of_threads % num_of_computers)){
+
+        cur_num_of_threads++;
+    }
+
+    double cur_range = cur_num_of_threads * range_per_thread;
+
+    fill_task(start_point, start_point + cur_range, cur_num_of_threads, task);
+
+    return start_point + cur_range;
 }
 
 void distribute_resources(Computers* computers, int num_of_threads){ //ok
 
     Task* task = create_task(0, 0, 0);
+    double start_point = 0;
 
     for (int i = 0; i < computers->num_of_computers; i++){
 
-        calc_new_task(computers->num_of_computers, i, num_of_threads, task);
+        start_point = calc_new_task(computers->num_of_computers, i, num_of_threads, start_point, task);
 
         int bytes_sent = send(computers->sockets[i], task, sizeof(Task), NULL);
         if (bytes_sent != sizeof(Task)) CHECK_ERROR("send task:");

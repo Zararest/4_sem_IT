@@ -1,6 +1,10 @@
 #include "./headers/Connection.h"
 #include "./headers/Integral.h"
 
+#define CHECK_ERROR(str)    do{             \
+                                perror(str);\
+                                exit(0);    \
+                            } while (0)  
 
 int connect_to_server(int num_of_threads){
 
@@ -72,6 +76,8 @@ void send_result(double value, clock_t time, int sock){
     if (bytes_sent != sizeof(Result)) CHECK_ERROR("send result:");
 
     free_result(result);
+
+    close(sock);
 }
 
 int main(int argc, char** argv){
@@ -92,7 +98,7 @@ int main(int argc, char** argv){
 
     clock_t start, end;
     int sock = connect_to_server(num_of_threads);
-    Task* task = receive_task(sock);
+    Task* task = receive_task(sock); //может быть нулем !!!!!!!!!!!!!!!!
 
     start = clock();
     double value = complete_task(task);
