@@ -2,11 +2,6 @@
 
 #define DATA_SIZE sizeof(double) * 2 + sizeof(int) + sizeof(pthread_t)
 
-#define CHECK_ERROR(str)    do{             \
-                                perror(str);\
-                                exit(0);    \
-                            } while (0)  
-
 struct thread_data{
 
     pthread_t thr_info;
@@ -54,7 +49,7 @@ void* thread_body(void* args){
     return NULL;
 }
 
-double get_result(struct Integral* integr){
+double get_result(Integral* integr){
 
     double integral = 0;
 
@@ -69,7 +64,7 @@ double get_result(struct Integral* integr){
     return integral;
 }
 
-void set_threads(struct Integral* integr, int num_of_busy_cores){
+void set_threads(Integral* integr, int num_of_busy_cores){
 
     int num_of_log_CPU = get_nprocs();
 
@@ -85,22 +80,26 @@ void set_threads(struct Integral* integr, int num_of_busy_cores){
     }
 }
 
-struct Integral* create_integral(int num_of_threads, int range_per_thread){
+Integral* create_integral(int num_of_threads, int range_per_thread, double start_point){
     
-    struct Integral* integr = (struct Integral*) calloc(1, sizeof(struct Integral));
+    Integral* integr = (Integral*) calloc(1, sizeof(Integral));
+    if (integr == NULL) CHECK_ERROR("create integral");
+
     integr->thr_arr = (struct thread_data*) calloc(num_of_threads, sizeof(struct thread_data));
+    if (integr->thr_arr == NULL) CHECK_ERROR("create integral");
+    
     integr->num_of_threads = num_of_threads;
 
     for (int i = 0; i < num_of_threads; i++){
 
-        integr->thr_arr[i].from = i * range_per_thread;
-        integr->thr_arr[i].to = (i + 1) * range_per_thread;
+        integr->thr_arr[i].from = start_point + i * range_per_thread;
+        integr->thr_arr[i].to = start_point + (i + 1) * range_per_thread;
     }
 
     return integr;
 }
 
-void clean_integral(struct Integral* integr){
+void clean_integral(Integral* integr){
 
     if (integr != NULL)
         free(integr->thr_arr);
@@ -108,6 +107,7 @@ void clean_integral(struct Integral* integr){
     free(integr);
 }
 
+#ifdef MAIN
 int main(int argc, char** argv){
 
     if (argc < 2){
@@ -124,14 +124,14 @@ int main(int argc, char** argv){
         return 0;
     }
 
-    struct Integral* main_integr = create_integral(num_of_threads, RANGE / num_of_threads);
+    Integral* main_integr = create_integral(num_of_threads, RANGE / num_of_threads, 0);
     int num_of_log_CPU = get_nprocs();
 
-    struct Integral* magic = NULL;
+    Integral* magic = NULL;
 
     if (num_of_log_CPU > num_of_threads){
 
-        magic = create_integral(num_of_log_CPU - num_of_threads, RANGE / num_of_threads);
+        magic = create_integral(num_of_log_CPU - num_of_threads, RANGE / num_of_threads, 0);
     }
 
     set_threads(main_integr, 0);
@@ -147,3 +147,4 @@ int main(int argc, char** argv){
     clean_integral(main_integr);
     clean_integral(magic);
 }
+#endif
