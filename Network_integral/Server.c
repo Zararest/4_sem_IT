@@ -1,7 +1,5 @@
-#include "./headers/Connection.h"
-#include "./headers/Integral.h"
-
-#include <time.h>
+#include "./lib/Connection.h"
+#include "./lib/Integral.h"
 
 #define CHECK_ERROR(str)    do{             \
                                 perror(str);\
@@ -48,7 +46,7 @@ int new_computer(int* socket, int listener){ //ok
     if (*socket < 0) CHECK_ERROR("accept:");
     
     int num_of_threads, bytes_read;
-    bytes_read = recv(*socket, &num_of_threads, sizeof(int), NULL);
+    bytes_read = recv(*socket, &num_of_threads, sizeof(int), 0);
     if (bytes_read != sizeof(int)) CHECK_ERROR("getting the number of threads:");
 
     if (num_of_threads < 1){
@@ -76,7 +74,7 @@ int connect_computers(Computers* computers){ //ok
     if (bind_ret < 0) CHECK_ERROR("bind:");
 
     int listen_ret = listen(listener, BACK_LOG);
-    if (listen_ret < 0) CHECK_ERROR(listen_ret);
+    if (listen_ret < 0) CHECK_ERROR("listen:");
 
     for (int i = 0; i < computers->num_of_computers; i++){
 
@@ -114,7 +112,7 @@ void distribute_resources(Computers* computers, int num_of_threads){ //ok
 
         start_point = calc_new_task(computers->num_of_computers, i, num_of_threads, start_point, task);
 
-        int bytes_sent = send(computers->sockets[i], task, sizeof(Task), NULL);
+        int bytes_sent = send(computers->sockets[i], task, sizeof(Task), 0);
         if (bytes_sent != sizeof(Task)) CHECK_ERROR("send task:");
     }
 
@@ -128,7 +126,7 @@ void get_results(Computers* computers){ //ok
 
     for (int i = 0; i < computers->num_of_computers; i++){
 
-        int bytes_read = recv(computers->sockets[i], result, sizeof(Result), NULL);
+        int bytes_read = recv(computers->sockets[i], result, sizeof(Result), 0);
         if (bytes_read != sizeof(Result)) CHECK_ERROR("recv result:");
 
         integr_value += get_value(result);

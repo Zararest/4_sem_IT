@@ -6,6 +6,7 @@
 #include <sched.h>
 #include <sys/sysinfo.h>
 #include <math.h>
+#include <time.h>
 
 #define DELTA_X 0.0002
 #define RANGE 10000

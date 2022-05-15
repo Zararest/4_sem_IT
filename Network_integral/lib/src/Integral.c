@@ -1,4 +1,4 @@
-#include "./headers/Integral.h"
+#include "../Integral.h"
 
 #define CHECK_ERROR(str)    do{             \
                                 perror(str);\

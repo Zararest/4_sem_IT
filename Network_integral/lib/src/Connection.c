@@ -1,4 +1,4 @@
-#include "./headers/Connection.h"
+#include "../Connection.h"
 
 #define CHECK_ERROR(str)    do{             \
                                 perror(str);\
@@ -17,7 +17,7 @@ Task* create_task(double from, double to, int num_of_threads){
     return task;
 }
 
-void fill_task(double from, double to, double num_of_threads, Task* task){
+void fill_task(double from, double to, int num_of_threads, Task* task){
 
     if (task == NULL){
 
@@ -30,7 +30,7 @@ void fill_task(double from, double to, double num_of_threads, Task* task){
     task->num_of_threads = num_of_threads;
 }
 
-void get_values(double* from, double* to, double* num_of_threads, Task* task){
+void get_values(double* from, double* to, int* num_of_threads, Task* task){
 
     if (from == NULL || to == NULL || num_of_threads == NULL || task == NULL){
 
@@ -75,7 +75,7 @@ double get_value(Result* result){
     if (result == NULL){
 
         fprintf(stderr, "get_value wrong params\n");
-        return;
+        return -1;
     }
 
     return result->value;

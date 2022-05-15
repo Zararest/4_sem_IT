@@ -3,6 +3,8 @@
 #include <netinet/in.h>
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #define BACK_LOG 50
 #define PORT_NUM 4111
@@ -21,8 +23,8 @@ typedef struct Result{
 } Result;
 
 Task* create_task(double from, double to, int num_of_threads);
-void fill_task(double from, double to, double num_of_threads, Task* task);
-void get_values(double* from, double* to, double* num_of_threads, Task* task);
+void fill_task(double from, double to, int num_of_threads, Task* task);
+void get_values(double* from, double* to, int* num_of_threads, Task* task);
 void free_task(Task* task);
 
 Result* create_result(double value, clock_t time);

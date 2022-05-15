@@ -1,5 +1,5 @@
-#include "./headers/Connection.h"
-#include "./headers/Integral.h"
+#include "./lib/Connection.h"
+#include "./lib/Integral.h"
 
 #define CHECK_ERROR(str)    do{             \
                                 perror(str);\
@@ -20,7 +20,7 @@ int connect_to_server(int num_of_threads){
     int connect_ret = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
     if (connect_ret < 0) CHECK_ERROR("connect:");
 
-    int bytes_sent = send(sock, &num_of_threads, sizeof(int), NULL);
+    int bytes_sent = send(sock, &num_of_threads, sizeof(int), 0);
     if (bytes_sent != sizeof(int)) CHECK_ERROR("send number of threads:");
 
     return sock;
@@ -30,7 +30,7 @@ Task* receive_task(int sock){
 
     Task* task = create_task(0, 0, 0);
 
-    int bytes_read = recv(sock, task, sizeof(Task), NULL);
+    int bytes_read = recv(sock, task, sizeof(Task), 0);
     if (bytes_read != sizeof(Task)) CHECK_ERROR("receive task:");
 
     return task;
@@ -72,7 +72,7 @@ void send_result(double value, clock_t time, int sock){
 
     Result* result = create_result(value, time);
 
-    int bytes_sent = send(sock, result, sizeof(Result), NULL);
+    int bytes_sent = send(sock, result, sizeof(Result), 0);
     if (bytes_sent != sizeof(Result)) CHECK_ERROR("send result:");
 
     free_result(result);
@@ -104,7 +104,7 @@ int main(int argc, char** argv){
     double value = complete_task(task);
     end = clock();
 
-    send_result(value, time, sock);
+    send_result(value, end - start, sock);
     free_task(task);
 }
 
