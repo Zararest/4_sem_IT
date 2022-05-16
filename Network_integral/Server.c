@@ -119,7 +119,7 @@ void distribute_resources(Computers* computers, int num_of_threads){ //ok
     free_task(task);
 }
 
-void get_results(Computers* computers){ //ok
+double get_results(Computers* computers){ //ok
 
     Result* result = create_result(0, 0);
     double integr_value = 0;
@@ -133,6 +133,8 @@ void get_results(Computers* computers){ //ok
     }
 
     free_result(result);
+
+    return integr_value;
 }
 
 
@@ -152,17 +154,16 @@ int main(int argc, char** argv){
         return 0;
     }
 
-    clock_t start, end;
+    double result;
     int connected_computers = 0;
     
     Computers* computers = init_computers(num_of_computers);
 
     int num_of_threads = connect_computers(computers);
-
-    start = clock();
     distribute_resources(computers, num_of_threads);
-    get_results(computers);
-    end = clock();
+    result = get_results(computers);
 
     delete_computers(computers);
+
+    printf("result: %.2lf\n", result);
 }

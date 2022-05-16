@@ -17,7 +17,7 @@ int connect_to_server(int num_of_threads){
     addr.sin_port = htons(PORT_NUM);
     addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
-    int connect_ret = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
+    int connect_ret = connect(sock, (struct sockaddr*)&addr, sizeof(addr));
     if (connect_ret < 0) CHECK_ERROR("connect:");
 
     int bytes_sent = send(sock, &num_of_threads, sizeof(int), 0);
@@ -41,6 +41,11 @@ double complete_task(Task* task){
     double from, to;
     int num_of_threads;
     get_values(&from, &to, &num_of_threads, task);
+
+    if (num_of_threads == 0){
+
+        return 0;
+    }
 
     Integral* main_integr = create_integral(num_of_threads, (to - from) / num_of_threads, from);
     int num_of_log_CPU = get_nprocs();
@@ -98,7 +103,7 @@ int main(int argc, char** argv){
 
     clock_t start, end;
     int sock = connect_to_server(num_of_threads);
-    Task* task = receive_task(sock); //может быть нулем !!!!!!!!!!!!!!!!
+    Task* task = receive_task(sock);
 
     start = clock();
     double value = complete_task(task);
