@@ -82,7 +82,7 @@ int connect_computers(Computers* computers){ //ok
     #define ACTION exit(0);
 
     TCP_serv_addr.serv_addr = addr;
-    send_serv_addr(&TCP_serv_addr);                 //отправляем адрес
+    int UDP_fd = send_serv_addr(&TCP_serv_addr);                 //отправляем адрес
     
     DEBUG_PRINT("after sending TCP address");
 
@@ -92,6 +92,7 @@ int connect_computers(Computers* computers){ //ok
     }
 
     close(listener);                         //?
+    close(UDP_fd);                                      //закрыли отправление адреса
 
     return num_of_threads;
 }

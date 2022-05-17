@@ -48,7 +48,7 @@ void set_value(double value, Result* result);
 double get_value(Result* result);
 void free_result(Result* result);
 
-void send_serv_addr(ServAddr* serv_addr);
+int send_serv_addr(ServAddr* serv_addr);
 ServAddr* recv_serv_addr();
 
 void set_keep_alive(int sock);

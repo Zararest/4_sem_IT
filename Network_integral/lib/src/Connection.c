@@ -81,7 +81,7 @@ void free_result(Result* result){
     free(result);
 }
 
-void send_serv_addr(ServAddr* serv_addr){
+int send_serv_addr(ServAddr* serv_addr){
 
     if (serv_addr == NULL){
 
@@ -94,10 +94,13 @@ void send_serv_addr(ServAddr* serv_addr){
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(UDP_PORT_NUM);
-    addr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+    addr.sin_addr.s_addr = INADDR_BROADCAST;//htonl(INADDR_BROADCAST);
 
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0) CHECK_ERROR("UPD socket:");
+
+    if (bind(sock, (struct sockaddr*) &addr, sizeof(addr)) != 0)
+        CHECK_ERROR("bind in send UDP:");
 
     #undef ACTION
     #define ACTION close(sock); exit(0);
@@ -131,7 +134,7 @@ ServAddr* recv_serv_addr(){
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(UDP_PORT_NUM);
-    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serv_addr.sin_addr.s_addr = INADDR_ANY;//htonl(INADDR_ANY);
 
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0) CHECK_ERROR("recv UDP socket:");
