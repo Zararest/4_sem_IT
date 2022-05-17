@@ -103,7 +103,10 @@ void send_serv_addr(ServAddr* serv_addr){
     #define ACTION close(sock); exit(0);
 
     int enable = 1;
-    if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &enable, sizeof(enable)) != 0)
+    if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &enable, sizeof(enable)) != 0) 
+        CHECK_ERROR("set socket broadcast:");
+
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) != 0) 
         CHECK_ERROR("set socket broadcast:");
 
     if (sendto(sock, serv_addr, sizeof(ServAddr), 0, (struct sockaddr*) &addr, sizeof(addr)) != sizeof(ServAddr))

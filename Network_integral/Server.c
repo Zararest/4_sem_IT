@@ -62,12 +62,12 @@ int connect_computers(Computers* computers){ //ok
     struct sockaddr_in addr;
     memset(&addr, 0, sizeof(struct sockaddr_in));
 
-    listener = socket(AF_INET, SOCK_STREAM, 0);  //tcpServerFd
+    listener = socket(AF_INET, SOCK_STREAM, 0);  
     if (listener < 0) CHECK_ERROR("listener:");
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(PORT_NUM);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);      //возможно тут ошибка
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);      
 
     #undef ACTION
     #define ACTION close(listener); exit(0);
