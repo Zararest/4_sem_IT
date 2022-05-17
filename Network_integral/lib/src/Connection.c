@@ -114,5 +114,35 @@ void send_serv_addr(ServAddr* serv_addr){
 }
 
 ServAddr* recv_serv_addr(){
-    
+
+    ServAddr* remote_serv = (ServAddr*) calloc(1, sizeof(ServAddr));
+
+    if (remote_serv == NULL){
+
+        fprintf(stderr, "can't allocate remote server addr\n");
+        exit(0);
+    }
+ 
+    struct sockaddr_in serv_addr = {0};
+    memset(&serv_addr, 0, sizeof(struct sockaddr_in));
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(UDP_PORT_NUM);
+    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0) CHECK_ERROR("recv UDP socket:");
+
+    #undef ACTION
+    #define ACTION close(sock); exit(0);
+
+    if (bind(sock, (struct sockaddr_in*) &serv_addr, sizeof(serv_addr)) != 0)
+        CHECK_ERROR("bind in recv UDP:");
+
+    if (recvfrom(sock, remote_serv, sizeof(ServAddr), 0, NULL, NULL) != 0)
+        CHECK_ERROR("recv remote serv addr:");
+
+    close(sock);
+
+    return remote_serv;    
 }
