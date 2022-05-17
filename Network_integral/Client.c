@@ -1,22 +1,36 @@
 #include "./lib/Connection.h"
 #include "./lib/Integral.h"
 
-int connect_to_server(int num_of_threads){
+int connect_to_server(int num_of_threads){  
 
+    DEBUG_PRINT("in connection");
+
+    struct ServAddr* tmp = recv_serv_addr();
+    struct sockaddr_in recved_addr = tmp->serv_addr;
     struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(struct sockaddr_in));
+    free(tmp);
+    
+    DEBUG_PRINT("received server addr");
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) CHECK_ERROR("socket:");
-
+    
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(PORT_NUM);
-    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    addr.sin_port = recved_addr.sin_port;
+    addr.sin_addr = recved_addr.sin_addr;
 
+    #undef ACTION
+    #define ACTION close(sock); exit(0);
+    
     int connect_ret = connect(sock, (struct sockaddr*)&addr, sizeof(addr));
     if (connect_ret < 0) CHECK_ERROR("connect:");                               //connection refused
 
     int bytes_sent = send(sock, &num_of_threads, sizeof(int), 0);
     if (bytes_sent != sizeof(int)) CHECK_ERROR("send number of threads:");
+
+    #undef ACTION
+    #define ACTION exit(0);
 
     return sock;
 }

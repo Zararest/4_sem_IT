@@ -27,7 +27,7 @@ void delete_computers(Computers* computers){  //ok
         if (computers->sockets != NULL){
 
             for (int i = 0; i < computers->num_of_computers; i++) 
-                close(computers->sockets[i]);       //?
+                close(computers->sockets[i]);      
         }
 
         free(computers->sockets);
@@ -53,23 +53,36 @@ int new_computer(int* socket, int listener){ //ok
     return num_of_threads;
 }
 
+
 int connect_computers(Computers* computers){ //ok
+
+    ServAddr TCP_serv_addr;
 
     int listener, num_of_threads = 0;
     struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(struct sockaddr_in));
 
-    listener = socket(AF_INET, SOCK_STREAM, 0);
+    listener = socket(AF_INET, SOCK_STREAM, 0);  //tcpServerFd
     if (listener < 0) CHECK_ERROR("listener:");
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(PORT_NUM);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);      //возможно тут ошибка
 
-    int bind_ret = bind(listener, (struct sockaddr *)&addr, sizeof(addr));
+    #undef ACTION
+    #define ACTION close(listener); exit(0);
+
+    int bind_ret = bind(listener, (struct sockaddr*) &addr, sizeof(addr));
     if (bind_ret < 0) CHECK_ERROR("bind:");
 
     int listen_ret = listen(listener, BACK_LOG);
     if (listen_ret < 0) CHECK_ERROR("listen:");
+
+    #undef ACTION
+    #define ACTION exit(0);
+
+    TCP_serv_addr.serv_addr = addr;
+    send_serv_addr(&TCP_serv_addr);                 //отправляем адрес
 
     for (int i = 0; i < computers->num_of_computers; i++){
 

@@ -106,7 +106,7 @@ void send_serv_addr(ServAddr* serv_addr){
     if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &enable, sizeof(enable)) != 0)
         CHECK_ERROR("set socket broadcast:");
 
-    if (sendto(sock, serv_addr, sizeof(ServAddr), 0, (struct sockaddr_in*) &addr, sizeof(addr)) != 0)
+    if (sendto(sock, serv_addr, sizeof(ServAddr), 0, (struct sockaddr*) &addr, sizeof(addr)) != sizeof(ServAddr))
         CHECK_ERROR("send server adress:");
 
     #undef ACTION
@@ -136,12 +136,15 @@ ServAddr* recv_serv_addr(){
     #undef ACTION
     #define ACTION close(sock); exit(0);
 
-    if (bind(sock, (struct sockaddr_in*) &serv_addr, sizeof(serv_addr)) != 0)
+    if (bind(sock, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) != 0)
         CHECK_ERROR("bind in recv UDP:");
 
     if (recvfrom(sock, remote_serv, sizeof(ServAddr), 0, NULL, NULL) != 0)
         CHECK_ERROR("recv remote serv addr:");
 
+    #undef ACTION
+    #define ACTION exit(0);
+    
     close(sock);
 
     return remote_serv;    
