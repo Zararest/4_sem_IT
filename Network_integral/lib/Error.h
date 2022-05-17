@@ -9,7 +9,11 @@
                             } while (0)  
 
 #ifdef DEBUG
-    #define DEBUG_PRINT(str) printf("DEBUG: %s\n", (str))
+    #define DEBUG_PRINT(str)    do{                     \
+                                    printf("DEBUG:");   \
+                                    printf(str);        \
+                                    printf("\n");       \
+                                }while(0)
 #endif 
 
 #ifndef DEBUG

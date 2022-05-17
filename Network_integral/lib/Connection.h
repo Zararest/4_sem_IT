@@ -12,7 +12,7 @@
 #define BACK_LOG 50
 #define PORT_NUM 9132
 
-#define UDP_PORT_NUM 9567
+#define UDP_PORT_NUM 4000
 
 /*
 1) отправляем через datagram нужную информацию 

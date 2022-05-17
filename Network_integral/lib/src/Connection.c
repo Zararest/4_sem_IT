@@ -139,12 +139,16 @@ ServAddr* recv_serv_addr(){
     if (bind(sock, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) != 0)
         CHECK_ERROR("bind in recv UDP:");
 
-    if (recvfrom(sock, remote_serv, sizeof(ServAddr), 0, NULL, NULL) != 0)
+    DEBUG_PRINT("before server receiving");
+
+    if (recvfrom(sock, remote_serv, sizeof(ServAddr), 0, NULL, NULL) != sizeof(ServAddr))
         CHECK_ERROR("recv remote serv addr:");
 
     #undef ACTION
     #define ACTION exit(0);
     
+    DEBUG_PRINT("server received");
+
     close(sock);
 
     return remote_serv;    

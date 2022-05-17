@@ -83,6 +83,8 @@ int connect_computers(Computers* computers){ //ok
 
     TCP_serv_addr.serv_addr = addr;
     send_serv_addr(&TCP_serv_addr);                 //отправляем адрес
+    
+    DEBUG_PRINT("after sending TCP address");
 
     for (int i = 0; i < computers->num_of_computers; i++){
 
