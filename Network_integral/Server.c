@@ -1,11 +1,6 @@
 #include "./lib/Connection.h"
 #include "./lib/Integral.h"
 
-#define CHECK_ERROR(str)    do{             \
-                                perror(str);\
-                                exit(0);    \
-                            } while (0)  
-
 typedef struct Computers{
 
     int num_of_computers;

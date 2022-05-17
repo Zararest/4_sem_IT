@@ -1,10 +1,5 @@
 #include "../Integral.h"
-
-#define CHECK_ERROR(str)    do{             \
-                                perror(str);\
-                                exit(0);    \
-                            } while (0)  
-
+ 
 #define DATA_SIZE sizeof(double) * 2 + sizeof(int) + sizeof(pthread_t)
 
 struct thread_data{

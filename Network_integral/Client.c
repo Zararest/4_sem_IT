@@ -1,11 +1,6 @@
 #include "./lib/Connection.h"
 #include "./lib/Integral.h"
 
-#define CHECK_ERROR(str)    do{             \
-                                perror(str);\
-                                exit(0);    \
-                            } while (0)  
-
 int connect_to_server(int num_of_threads){
 
     struct sockaddr_in addr;
@@ -18,7 +13,7 @@ int connect_to_server(int num_of_threads){
     addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
     int connect_ret = connect(sock, (struct sockaddr*)&addr, sizeof(addr));
-    if (connect_ret < 0) CHECK_ERROR("connect:");
+    if (connect_ret < 0) CHECK_ERROR("connect:");                               //connection refused
 
     int bytes_sent = send(sock, &num_of_threads, sizeof(int), 0);
     if (bytes_sent != sizeof(int)) CHECK_ERROR("send number of threads:");

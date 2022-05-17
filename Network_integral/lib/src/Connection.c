@@ -1,10 +1,5 @@
 #include "../Connection.h"
 
-#define CHECK_ERROR(str)    do{             \
-                                perror(str);\
-                                exit(0);    \
-                            } while (0)  
-
 Task* create_task(double from, double to, int num_of_threads){
 
     Task* task = (Task*) calloc(1, sizeof(Task));
@@ -84,4 +79,40 @@ double get_value(Result* result){
 void free_result(Result* result){
 
     free(result);
+}
+
+void send_serv_addr(ServAddr* serv_addr){
+
+    if (serv_addr == NULL){
+
+        fprintf(stderr, "send_serv_addr wrong params\n");
+        exit(0);
+    }
+
+    struct sockaddr_in addr = {0};
+    memset(&addr, 0, sizeof(struct sockaddr_in));
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(UDP_PORT_NUM);
+    addr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0) CHECK_ERROR("UPD socket:");
+
+    #undef ACTION
+    #define ACTION close(sock); exit(0);
+
+    int enable = 1;
+    if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &enable, sizeof(enable)) != 0)
+        CHECK_ERROR("set socket broadcast:");
+
+    if (sendto(sock, serv_addr, sizeof(ServAddr), 0, (struct sockaddr_in*) &addr, sizeof(addr)) != 0)
+        CHECK_ERROR("send server adress:");
+
+    #undef ACTION
+    #define ACTION exit(0);
+}
+
+ServAddr* recv_serv_addr(){
+    
 }

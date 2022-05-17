@@ -2,11 +2,12 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <error.h>
 #include <sched.h>
 #include <sys/sysinfo.h>
 #include <math.h>
 #include <time.h>
+
+#include "Error.h"
 
 #define DELTA_X 0.0002
 #define RANGE 10000
