@@ -13,6 +13,8 @@ int connect_to_server(int num_of_threads){
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) CHECK_ERROR("socket:");
+
+    set_keep_alive(sock);                       //вроде эти флаги
     
     addr.sin_family = AF_INET;
     addr.sin_port = recved_addr->sin_port;

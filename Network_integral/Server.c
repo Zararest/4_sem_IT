@@ -56,8 +56,6 @@ int new_computer(int* socket, int listener){ //ok
 
 int connect_computers(Computers* computers){ //ok
 
-    ServAddr TCP_serv_addr;
-
     int listener, num_of_threads = 0;
     struct sockaddr_in addr;
     memset(&addr, 0, sizeof(struct sockaddr_in));
@@ -67,7 +65,7 @@ int connect_computers(Computers* computers){ //ok
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(PORT_NUM);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);      
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);  
 
     #undef ACTION
     #define ACTION close(listener); exit(0);
@@ -81,8 +79,7 @@ int connect_computers(Computers* computers){ //ok
     #undef ACTION
     #define ACTION exit(0);
 
-    TCP_serv_addr = addr;
-    int UDP_fd = send_serv_addr(&TCP_serv_addr);                 //отправляем адрес
+    int UDP_fd = send_serv_addr(&addr);                 //отправляем адрес
     
     DEBUG_PRINT("after sending TCP address");
 
