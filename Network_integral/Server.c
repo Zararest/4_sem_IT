@@ -133,9 +133,9 @@ double get_results(Computers* computers){ //ok
     double integr_value = 0;
 
     for (int i = 0; i < computers->num_of_computers; i++){
-
+        sleep(10);
         int bytes_read = recv(computers->sockets[i], result, sizeof(Result), 0);
-        if (bytes_read != sizeof(Result)) CHECK_ERROR("recv result:");
+        if (bytes_read != sizeof(Result)) CHECK_ERROR("recv result:");              //тут жопа
 
         integr_value += get_value(result);
     }

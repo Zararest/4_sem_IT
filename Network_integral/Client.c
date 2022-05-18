@@ -14,10 +14,21 @@ int connect_to_server(int num_of_threads){
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) CHECK_ERROR("socket:");
 
-    set_keep_alive(sock);                       //вроде эти флаги
+    int keep_cnt = KEEPCNT;
+    int keep_idle = KEEPIDLE;
+    int keep_intvl = KEEPINTVL;
+
+    if (setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(int)) != 0)
+        CHECK_ERROR("set TCP_KEEPCNT:");
+
+    if (setsockopt(sock, IPPROTO_TCP, TCP_KEEPIDLE, &keep_idle, sizeof(int)) != 0)
+        CHECK_ERROR("set TCP_KEEPIDLE:");
+
+    if (setsockopt(sock, IPPROTO_TCP, TCP_KEEPINTVL, &keep_intvl, sizeof(int)) != 0)
+        CHECK_ERROR("set TCP_KEEPINTVL:");    
     
     addr.sin_family = AF_INET;
-    addr.sin_port = recved_addr->sin_port;
+    addr.sin_port = htons(SERV_PORT_NUM);     
     addr.sin_addr = recved_addr->sin_addr;
     printf("serv_addr: %s\n", inet_ntoa(addr.sin_addr));
 
@@ -26,13 +37,14 @@ int connect_to_server(int num_of_threads){
     
     int connect_ret = connect(sock, (struct sockaddr*)&addr, sizeof(addr));
     if (connect_ret < 0) CHECK_ERROR("connect:");                               //connection refused
-    printf("after\n\n\n");
 
     int bytes_sent = send(sock, &num_of_threads, sizeof(int), 0);
     if (bytes_sent != sizeof(int)) CHECK_ERROR("send number of threads:");
 
     #undef ACTION
     #define ACTION exit(0);
+
+    free(recved_addr);
 
     return sock;
 }
