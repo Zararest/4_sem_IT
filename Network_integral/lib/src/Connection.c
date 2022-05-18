@@ -203,3 +203,13 @@ void set_keep_alive(int sock){
     if (setsockopt(sock, IPPROTO_TCP, TCP_KEEPINTVL, &keep_intvl, sizeof(int)) != 0)
         CHECK_ERROR("set TCP_KEEPINTVL:");    
 }
+
+void set_integr_timeout(int sock){
+
+    struct timeval compute_timeout;
+    compute_timeout.tv_sec = INTEGRAL_TIMEOUT_SEC;
+    compute_timeout.tv_usec = INTEGRAL_TIMEOUT_USEC;
+
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &compute_timeout, sizeof(compute_timeout)) != 0)
+        CHECK_ERROR("set integral SO_RCVTIMEO:");
+}

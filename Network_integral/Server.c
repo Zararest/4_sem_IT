@@ -39,6 +39,8 @@ int new_computer(int* socket, int listener){ //ok
 
     *socket = accept(listener, NULL, NULL);
     if (*socket < 0) CHECK_ERROR("accept:");  // здесь
+
+    set_integr_timeout(*socket);
     
     int num_of_threads, bytes_read;
     bytes_read = recv(*socket, &num_of_threads, sizeof(int), 0);
@@ -133,7 +135,7 @@ double get_results(Computers* computers){ //ok
     double integr_value = 0;
 
     for (int i = 0; i < computers->num_of_computers; i++){
-        sleep(10);
+        
         int bytes_read = recv(computers->sockets[i], result, sizeof(Result), 0);
         if (bytes_read != sizeof(Result)) CHECK_ERROR("recv result:");              //тут жопа
 

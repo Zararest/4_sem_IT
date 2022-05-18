@@ -19,6 +19,9 @@
 #define ACCEPT_TIMEOUT_SEC  0       
 #define ACCEPT_TIMEOUT_USEC 100000 
 
+#define INTEGRAL_TIMEOUT_SEC  10000   
+#define INTEGRAL_TIMEOUT_USEC 0 
+
 #define KEEPCNT 3 
 #define KEEPIDLE 2 
 #define KEEPINTVL 1
@@ -58,4 +61,5 @@ void send_serv_addr(ServAddr* serv_addr);
 ServAddr* recv_serv_addr();
 
 void set_keep_alive(int sock);
+void set_integr_timeout(int sock);
 
