@@ -36,8 +36,8 @@ void delete_computers(Computers* computers){  //ok
 }
 
 int new_computer(int* socket, int listener){ //ok
-    sleep(1);
-    *socket = accept(listener, NULL, NULL);
+    
+    while ( (*socket = accept(listener, NULL, NULL)) == -1){DEBUG_PRINT("accept_:"); }
     if (*socket < 0) CHECK_ERROR("accept:");  // здесь
 
     set_integr_timeout(*socket);
