@@ -1,4 +1,4 @@
-CC = gcc -pthread
+CC = gcc -pthread -std=c11
 CPPFLAGS = -MMD -MP
 
 LIB_SRC_PATH = ./lib/src/
