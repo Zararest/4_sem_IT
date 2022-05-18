@@ -1,7 +1,6 @@
 #include <error.h>
 
 #define ACTION exit(0)
-#define DEBUG
 
 #define CHECK_ERROR(str)    do{             \
                                 perror(str);\

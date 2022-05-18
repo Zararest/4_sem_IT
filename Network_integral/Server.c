@@ -147,6 +147,14 @@ double get_results(Computers* computers){ //ok
     return integr_value;
 }
 
+void print_time(struct timeval time_end, struct timeval time_begin){
+
+    int sec = time_end.tv_sec - time_begin.tv_sec;
+    int microsec = time_end.tv_usec - time_begin.tv_usec;
+    double time = sec + (double) microsec / 1000 / 1000;
+
+    printf("time: %.3f\n", time);
+}
 
 int main(int argc, char** argv){
 
@@ -170,10 +178,17 @@ int main(int argc, char** argv){
     Computers* computers = init_computers(num_of_computers);
 
     int num_of_threads = connect_computers(computers);
+
+    struct timeval time_begin, time_end;
+    gettimeofday(&time_begin, 0);
+
     distribute_resources(computers, num_of_threads);
     result = get_results(computers);
+
+    gettimeofday(&time_end, 0);
 
     delete_computers(computers);
 
     printf("result: %.2lf\n", result);
+    print_time(time_end, time_begin);
 }
