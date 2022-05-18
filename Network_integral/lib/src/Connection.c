@@ -128,7 +128,8 @@ ServAddr* recv_serv_addr(){
         fprintf(stderr, "can't allocate remote server addr\n");
         exit(0);
     }
- 
+    
+    ServAddr msg;
     struct sockaddr_in serv_addr = {0};
     memset(&serv_addr, 0, sizeof(struct sockaddr_in));
 
@@ -147,8 +148,11 @@ ServAddr* recv_serv_addr(){
 
     DEBUG_PRINT("before server receiving");
 
-    if (recvfrom(sock, remote_serv, sizeof(ServAddr), 0, NULL, NULL) != sizeof(ServAddr))
+    socklen_t remote_serv_len = sizeof(struct sockaddr);
+    if (recvfrom(sock, &msg, sizeof(ServAddr), 0, (struct sockaddr*) remote_serv, &remote_serv_len) != sizeof(ServAddr)) //мы получаем адрес отправителя
         CHECK_ERROR("recv remote serv addr:");
+
+    printf("received remote serv len %i and ServAddr is %li\n", remote_serv_len, sizeof(ServAddr));
 
     #undef ACTION
     #define ACTION exit(0);
