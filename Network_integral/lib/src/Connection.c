@@ -94,8 +94,7 @@ void send_serv_addr(ServAddr* serv_addr){
 
     broadcast_addr.sin_family = AF_INET;
     broadcast_addr.sin_port = htons(UDP_PORT_NUM);
-    broadcast_addr.sin_addr.s_addr = INADDR_BROADCAST;//htonl(INADDR_BROADCAST);
-    //inet_aton ("192.168.31.255", &addr.sin_addr);
+    broadcast_addr.sin_addr.s_addr = INADDR_BROADCAST;
 
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0) CHECK_ERROR("UPD socket:");
@@ -139,7 +138,7 @@ ServAddr* recv_serv_addr(){
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(UDP_PORT_NUM);
-    serv_addr.sin_addr.s_addr = INADDR_ANY;//htonl(INADDR_ANY);
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
 
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0) CHECK_ERROR("recv UDP socket:");
@@ -160,9 +159,6 @@ ServAddr* recv_serv_addr(){
 
     if (recvfrom(sock, &msg, sizeof(ServAddr), 0, (struct sockaddr*) remote_serv, &remote_serv_len) != sizeof(ServAddr)) //мы получаем адрес отправителя
         CHECK_ERROR("recv remote serv addr:");
-
-    printf("received remote serv len %i and ServAddr is %li\n", remote_serv_len, sizeof(ServAddr));
-    printf("serv_addr: %s\n", inet_ntoa(remote_serv->sin_addr));
 
     #undef ACTION
     #define ACTION exit(0);

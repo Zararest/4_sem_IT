@@ -13,14 +13,14 @@
 #include "Error.h"
 
 #define BACK_LOG 50
-#define SERV_PORT_NUM 4901 
-#define UDP_PORT_NUM 4902
+#define SERV_PORT_NUM 4951 
+#define UDP_PORT_NUM 4922
 
-#define ACCEPT_TIMEOUT_SEC  0       
+#define ACCEPT_TIMEOUT_SEC  1       
 #define ACCEPT_TIMEOUT_USEC 100000 
 
-#define INTEGRAL_TIMEOUT_SEC  10000   
-#define INTEGRAL_TIMEOUT_USEC 0 
+#define INTEGRAL_TIMEOUT_SEC  1000  
+#define INTEGRAL_TIMEOUT_USEC 1 
 
 #define KEEPCNT 3 
 #define KEEPIDLE 2 

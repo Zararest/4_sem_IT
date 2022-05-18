@@ -81,7 +81,7 @@ int connect_computers(Computers* computers){ //ok
 
     #undef ACTION
     #define ACTION exit(0);
-//--------------------------------------------------------
+
     send_serv_addr(&addr);                 //отправляем адрес
     
     DEBUG_PRINT("after sending TCP address");
@@ -91,7 +91,7 @@ int connect_computers(Computers* computers){ //ok
         num_of_threads += new_computer(&computers->sockets[i], listener);
     }
 
-    close(listener);                         //?
+    close(listener);                        
 
     return num_of_threads;
 }
@@ -137,7 +137,7 @@ double get_results(Computers* computers){ //ok
     for (int i = 0; i < computers->num_of_computers; i++){
         
         int bytes_read = recv(computers->sockets[i], result, sizeof(Result), 0);
-        if (bytes_read != sizeof(Result)) CHECK_ERROR("recv result:");              //тут жопа
+        if (bytes_read != sizeof(Result)) CHECK_ERROR("recv result:");          
 
         integr_value += get_value(result);
     }

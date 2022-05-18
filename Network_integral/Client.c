@@ -30,7 +30,6 @@ int connect_to_server(int num_of_threads){
     addr.sin_family = AF_INET;
     addr.sin_port = htons(SERV_PORT_NUM);     
     addr.sin_addr = recved_addr->sin_addr;
-    printf("serv_addr: %s\n", inet_ntoa(addr.sin_addr));
 
     #undef ACTION
     #define ACTION close(sock); exit(0);
@@ -108,6 +107,20 @@ void send_result(double value, clock_t time, int sock){
     close(sock);
 }
 
+void client_body(int num_of_threads){
+
+    clock_t start, end;
+    int sock = connect_to_server(num_of_threads);
+    Task* task = receive_task(sock);
+
+    start = clock();
+    double value = complete_task(task);
+    end = clock();
+
+    send_result(value, end - start, sock);
+    free_task(task);
+}
+
 int main(int argc, char** argv){
 
     if (argc < 2){
@@ -124,15 +137,20 @@ int main(int argc, char** argv){
         return 0;
     }
 
-    clock_t start, end;
-    int sock = connect_to_server(num_of_threads);
-    Task* task = receive_task(sock);
+    int is_loop = 0;
+    if (argc == 3 && strcmp(argv[2], "loop")){
 
-    start = clock();
-    double value = complete_task(task);
-    end = clock();
+        is_loop = 1;
+    }
 
-    send_result(value, end - start, sock);
-    free_task(task);
+    client_body(num_of_threads);
+
+    if (is_loop){
+
+        while (1){
+
+            client_body(num_of_threads);
+        }
+    }
 }
 
