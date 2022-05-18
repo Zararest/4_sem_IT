@@ -13,9 +13,8 @@
 #include "Error.h"
 
 #define BACK_LOG 50
-#define PORT_NUM 9132 
-
-#define UDP_PORT_NUM 4000
+#define SERV_PORT_NUM 4901 
+#define UDP_PORT_NUM 4902
 
 #define ACCEPT_TIMEOUT_SEC  0       
 #define ACCEPT_TIMEOUT_USEC 100000 
@@ -55,7 +54,7 @@ void set_value(double value, Result* result);
 double get_value(Result* result);
 void free_result(Result* result);
 
-int send_serv_addr(ServAddr* serv_addr);
+void send_serv_addr(ServAddr* serv_addr);
 ServAddr* recv_serv_addr();
 
 void set_keep_alive(int sock);

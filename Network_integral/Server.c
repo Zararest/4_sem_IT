@@ -38,7 +38,7 @@ void delete_computers(Computers* computers){  //ok
 int new_computer(int* socket, int listener){ //ok
 
     *socket = accept(listener, NULL, NULL);
-    if (*socket < 0) CHECK_ERROR("accept:");
+    if (*socket < 0) CHECK_ERROR("accept:");  // здесь
     
     int num_of_threads, bytes_read;
     bytes_read = recv(*socket, &num_of_threads, sizeof(int), 0);
@@ -53,7 +53,6 @@ int new_computer(int* socket, int listener){ //ok
     return num_of_threads;
 }
 
-
 int connect_computers(Computers* computers){ //ok
 
     int listener, num_of_threads = 0;
@@ -63,8 +62,10 @@ int connect_computers(Computers* computers){ //ok
     listener = socket(AF_INET, SOCK_STREAM, 0);  
     if (listener < 0) CHECK_ERROR("listener:");
 
+    set_keep_alive(listener);                       //нужные флаги в сервере
+
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(PORT_NUM);
+    addr.sin_port = htons(SERV_PORT_NUM);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);  
 
     #undef ACTION
@@ -78,8 +79,8 @@ int connect_computers(Computers* computers){ //ok
 
     #undef ACTION
     #define ACTION exit(0);
-
-    int UDP_fd = send_serv_addr(&addr);                 //отправляем адрес
+//--------------------------------------------------------
+    send_serv_addr(&addr);                 //отправляем адрес
     
     DEBUG_PRINT("after sending TCP address");
 
@@ -89,7 +90,6 @@ int connect_computers(Computers* computers){ //ok
     }
 
     close(listener);                         //?
-    close(UDP_fd);                                      //закрыли отправление адреса
 
     return num_of_threads;
 }

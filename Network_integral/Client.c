@@ -19,12 +19,14 @@ int connect_to_server(int num_of_threads){
     addr.sin_family = AF_INET;
     addr.sin_port = recved_addr->sin_port;
     addr.sin_addr = recved_addr->sin_addr;
+    printf("serv_addr: %s\n", inet_ntoa(addr.sin_addr));
 
     #undef ACTION
     #define ACTION close(sock); exit(0);
     
     int connect_ret = connect(sock, (struct sockaddr*)&addr, sizeof(addr));
     if (connect_ret < 0) CHECK_ERROR("connect:");                               //connection refused
+    printf("after\n\n\n");
 
     int bytes_sent = send(sock, &num_of_threads, sizeof(int), 0);
     if (bytes_sent != sizeof(int)) CHECK_ERROR("send number of threads:");
