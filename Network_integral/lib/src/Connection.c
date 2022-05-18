@@ -95,12 +95,10 @@ int send_serv_addr(ServAddr* serv_addr){
     addr.sin_family = AF_INET;
     addr.sin_port = htons(UDP_PORT_NUM);
     addr.sin_addr.s_addr = INADDR_BROADCAST;//htonl(INADDR_BROADCAST);
+    //inet_aton ("192.168.31.255", &addr.sin_addr);
 
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0) CHECK_ERROR("UPD socket:");
-
-    if (bind(sock, (struct sockaddr*) &addr, sizeof(addr)) != 0)
-        CHECK_ERROR("bind in send UDP:");
 
     #undef ACTION
     #define ACTION close(sock); exit(0);
@@ -117,6 +115,8 @@ int send_serv_addr(ServAddr* serv_addr){
 
     #undef ACTION
     #define ACTION exit(0);
+
+    return sock;
 }
 
 ServAddr* recv_serv_addr(){
@@ -158,4 +158,34 @@ ServAddr* recv_serv_addr(){
     close(sock);
 
     return remote_serv;    
+}
+
+void set_keep_alive(int sock){
+
+    struct timeval timeout_accept;
+    timeout_accept.tv_sec = ACCEPT_TIMEOUT_SEC;
+    timeout_accept.tv_usec = ACCEPT_TIMEOUT_USEC;
+
+    int keep_cnt = KEEPCNT;
+    int keep_idle = KEEPIDLE;
+    int keep_intvl = KEEPINTVL;
+
+    int enable = 1;
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) != 0)
+        CHECK_ERROR("set SO_REUSEADDR:");
+
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout_accept, sizeof(timeout_accept)) != 0)
+        CHECK_ERROR("set SO_RCVTIMEO:");
+
+    if (setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &enable, sizeof(int)) != 0)
+        CHECK_ERROR("set SO_KEEPALIVE:");
+
+    if (setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &keep_cnt, sizeof(int)) != 0)
+        CHECK_ERROR("set TCP_KEEPCNT:");
+
+    if (setsockopt(sock, IPPROTO_TCP, TCP_KEEPIDLE, &keep_idle, sizeof(int)) != 0)
+        CHECK_ERROR("set TCP_KEEPIDLE:");
+
+    if (setsockopt(sock, IPPROTO_TCP, TCP_KEEPINTVL, &keep_intvl, sizeof(int)) != 0)
+        CHECK_ERROR("set TCP_KEEPINTVL:");    
 }

@@ -5,11 +5,9 @@ int connect_to_server(int num_of_threads){
 
     DEBUG_PRINT("in connection");
 
-    struct ServAddr* tmp = recv_serv_addr();
-    struct sockaddr_in recved_addr = tmp->serv_addr;
+    struct sockaddr_in* recved_addr = recv_serv_addr();
     struct sockaddr_in addr;
     memset(&addr, 0, sizeof(struct sockaddr_in));
-    free(tmp);
     
     DEBUG_PRINT("received server addr");
 
@@ -17,8 +15,8 @@ int connect_to_server(int num_of_threads){
     if (sock < 0) CHECK_ERROR("socket:");
     
     addr.sin_family = AF_INET;
-    addr.sin_port = recved_addr.sin_port;
-    addr.sin_addr = recved_addr.sin_addr;
+    addr.sin_port = recved_addr->sin_port;
+    addr.sin_addr = recved_addr->sin_addr;
 
     #undef ACTION
     #define ACTION close(sock); exit(0);

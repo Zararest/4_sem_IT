@@ -1,18 +1,28 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <time.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
+#include <sys/time.h>
 
 #include "Error.h"
 
 #define BACK_LOG 50
-#define PORT_NUM 9132
+#define PORT_NUM 9132 
 
 #define UDP_PORT_NUM 4000
+
+#define ACCEPT_TIMEOUT_SEC  0       
+#define ACCEPT_TIMEOUT_USEC 100000 
+
+#define KEEPCNT 3 
+#define KEEPIDLE 2 
+#define KEEPINTVL 1
 
 /*
 1) отправляем через datagram нужную информацию 
@@ -33,10 +43,7 @@ typedef struct Result{
     clock_t time;
 } Result;
 
-typedef struct ServAddr{
-
-    struct sockaddr_in serv_addr;
-} ServAddr;
+typedef struct sockaddr_in ServAddr;
 
 Task* create_task(double from, double to, int num_of_threads);
 void fill_task(double from, double to, int num_of_threads, Task* task);

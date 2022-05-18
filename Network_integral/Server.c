@@ -81,7 +81,7 @@ int connect_computers(Computers* computers){ //ok
     #undef ACTION
     #define ACTION exit(0);
 
-    TCP_serv_addr.serv_addr = addr;
+    TCP_serv_addr = addr;
     int UDP_fd = send_serv_addr(&TCP_serv_addr);                 //отправляем адрес
     
     DEBUG_PRINT("after sending TCP address");
